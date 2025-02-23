@@ -14,7 +14,10 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({ origin: "http://localhost:5173" }));
+
+if (process.env.NODE_ENV === "development") {
+  app.use(cors({ origin: "*" }));
+}
 
 app.get("/protected", protect, (req, res) => {
   res.send("Protected route");
