@@ -2,6 +2,7 @@ import express from "express";
 import http from "http";
 import dotenv from "dotenv";
 import { router as userRouter } from "./modules/user/user.routes";
+import { protect } from "./lib/middleware";
 
 dotenv.config();
 
@@ -11,7 +12,7 @@ const app = express();
 
 app.use(express.json());
 
-app.get("/", (req, res) => {
+app.get("/", protect, (req, res) => {
   res.json({ message: "Hello world" });
 });
 
