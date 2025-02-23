@@ -22,24 +22,36 @@ export async function createUserController(req: Request, res: Response) {
 
   const accessToken = signToken(userData);
 
-  res.cookie("accessToken", accessToken);
-  res.status(200).json({ message: "Successfuly created user" });
+  res
+    .cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      expires: new Date(Date.now() + 10 + 60 + 24),
+      maxAge: 24 * 60 * 60 * 1000,
+    })
+    .status(200)
+    .json({ message: "Successfuly created user" });
 }
 
 export async function loginUserController(req: Request, res: Response) {
   const { email, password } = req.body as { email: string; password: string };
 
-  const user = await prisma.user.findUnique({
+  if (!email || !password) {
+    console.error("Error: Email and password is required");
+    res.status(400).json({ message: "Email and password is required" });
+  }
+
+  const userData = await prisma.user.findUnique({
     where: { email },
-    select: { hashed_password: true },
   });
 
-  if (!user) {
+  if (!userData) {
     res.status(404).json({ message: "Cannot find user" });
     return;
   }
 
-  const hashedPassword = user.hashed_password;
+  const hashedPassword = userData.hashed_password;
 
   const isAuthenticated = await comparePassword(password, hashedPassword);
 
@@ -48,5 +60,13 @@ export async function loginUserController(req: Request, res: Response) {
     return;
   }
 
+  const accessToken = signToken(userData);
+  console.log("here");
+
+  res.cookie("accessToken", accessToken);
   res.status(200).json({ message: "Successfully logged in" });
+}
+
+export async function logoutUserController(req: Request, res: Response) {
+  res.clearCookie("accessToken");
 }

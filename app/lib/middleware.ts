@@ -7,9 +7,10 @@ export function protect(req: Request, res: Response, next: NextFunction) {
     !req.cookies.accessToken ||
     !verifyToken(req.cookies.accessToken)
   ) {
-    res.redirect("/login");
+    res.status(401).json({ message: "Unauthorized" });
     return;
   }
+
   next();
   return;
 }
