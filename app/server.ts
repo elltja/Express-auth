@@ -14,7 +14,6 @@ app.get("/", (req, res) => {
 app.get("/testing", (req, res) => {
   res.send("Testing testing");
 });
-// TODO: setup Docker and Postgres for development
 
 const server = http.createServer(app);
 
