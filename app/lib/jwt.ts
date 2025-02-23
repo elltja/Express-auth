@@ -14,6 +14,7 @@ export function signToken(userData: User) {
 }
 
 export function verifyToken(token: string) {
+  if (!token) return null;
   if (!process.env.JWT_SECRET) {
     throw new Error("JWT_SECRET is not defined");
   }
