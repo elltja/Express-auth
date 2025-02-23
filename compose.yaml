@@ -16,6 +16,12 @@ services:
             - node_modules/
         - action: rebuild
           path: package.json
+  db: 
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
     
 
 # The commented out section below is an example of how to define a PostgreSQL
