@@ -4,13 +4,17 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8080;
 
 const app = express();
 
 app.get("/", (req, res) => {
-  res.send("Hello world");
+  res.json({ message: "Hello world" });
 });
+app.get("/testing", (req, res) => {
+  res.send("Testing testing");
+});
+// TODO: setup Docker and Postgres for development
 
 const server = http.createServer(app);
 
