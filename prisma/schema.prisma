@@ -8,8 +8,17 @@ datasource db {
 }
 
 model User {
-  id              String @id
-  username        String
-  email           String @unique
+  id              String   @id
+  username        String   @unique
+  email           String   @unique
   hashed_password String
+  created_at      DateTime @default(now())
+  email_verified  Boolean  @default(false)
+}
+
+model Email_verification_token {
+  id         String   @id
+  user_id    String
+  token      String   @unique
+  expires_at DateTime
 }
