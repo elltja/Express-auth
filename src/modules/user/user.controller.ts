@@ -14,6 +14,8 @@ export async function createUserController(req: Request, res: Response) {
     email,
     hashed_password: hashedPassword,
     id: crypto.randomUUID(),
+    email_verified: false,
+    created_at: new Date(),
   };
   await createUser(userData);
 
