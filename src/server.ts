@@ -3,8 +3,8 @@ import http from "http";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { router as userRouter } from "./modules/user/user.routes";
 import { protect } from "./lib/middleware";
+import { router as apiRouter } from "./routes/v1/api.routes";
 
 dotenv.config();
 
@@ -23,7 +23,7 @@ app.get("/protected", protect, (req, res) => {
   res.send("Protected route");
 });
 
-app.use("/api/user", userRouter);
+app.use("/api/v1", apiRouter);
 
 const server = http.createServer(app);
 
