@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import { prisma } from "../../lib/db";
 import { User } from "@prisma/client";
 import { comparePassword, encryptPassword } from "../../lib/bcrypt";
 import { signToken } from "../../lib/jwt";
+import { createUser, getUserByEmail } from "./user.model";
 
 export async function createUserController(req: Request, res: Response) {
   const { username, email, password } = req.body;
@@ -15,10 +15,7 @@ export async function createUserController(req: Request, res: Response) {
     hashed_password: hashedPassword,
     id: crypto.randomUUID(),
   };
-
-  await prisma.user.create({
-    data: userData,
-  });
+  await createUser(userData);
 
   const accessToken = signToken(userData);
 
@@ -42,9 +39,7 @@ export async function loginUserController(req: Request, res: Response) {
     res.status(400).json({ message: "Email and password is required" });
   }
 
-  const userData = await prisma.user.findUnique({
-    where: { email },
-  });
+  const userData = await getUserByEmail(email);
 
   if (!userData) {
     res.status(404).json({ message: "Cannot find user" });
@@ -61,7 +56,6 @@ export async function loginUserController(req: Request, res: Response) {
   }
 
   const accessToken = signToken(userData);
-  console.log("here");
 
   res.cookie("accessToken", accessToken);
   res.status(200).json({ message: "Successfully logged in" });
