@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 import { getVerificationEmailTemplate } from "./templates";
+import { Email_verification_token, User } from "@prisma/client";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -10,18 +11,25 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function sendVerificationMail(to: string) {
+export async function sendVerificationMail(
+  userData: User,
+  tokenData: Email_verification_token
+) {
+  const text = getVerificationEmailTemplate(
+    userData.email,
+    `/email/verify?token=${tokenData.token}`
+  );
+
   try {
-    const text = getVerificationEmailTemplate(to, ""); // TODO: Add verification tokens module
     const info = await transporter.sendMail({
       from: process.env.VERIFICATION_MAIL_ADDRESS,
-      to,
+      to: userData.email,
       subject: "Verify your email",
       text,
     });
 
     console.log("Email sent: ", info.response);
-  } catch (error) {
-    console.error("Error sending email:", error);
+  } catch (err) {
+    throw new Error("Error sending email:" + err);
   }
 }
