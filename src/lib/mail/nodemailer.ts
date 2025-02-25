@@ -1,6 +1,4 @@
 import nodemailer from "nodemailer";
-import { getVerificationEmailTemplate } from "./templates";
-import { Email_verification_token, User } from "@prisma/client";
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -11,20 +9,12 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function sendVerificationMail(
-  userData: User,
-  tokenData: Email_verification_token
-) {
-  const text = getVerificationEmailTemplate(
-    userData.email,
-    `/email/verify?token=${tokenData.token}`
-  );
-
+export async function sendMail(to: string, subject: string, text: string) {
   try {
     const info = await transporter.sendMail({
       from: process.env.VERIFICATION_MAIL_ADDRESS,
-      to: userData.email,
-      subject: "Verify your email",
+      to,
+      subject,
       text,
     });
 
