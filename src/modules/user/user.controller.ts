@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { User } from "@prisma/client";
 import { comparePassword, encryptPassword } from "../../lib/bcrypt";
-import { signToken } from "../../lib/jwt";
+import { signRefreshToken, signToken } from "../../lib/jwt";
 import { createUser, getUserByEmail } from "./user.model";
 import { sendVerificationMail } from "../email/email.service";
 
@@ -33,6 +33,7 @@ export async function createUserController(req: Request, res: Response) {
     }
 
     const accessToken = signToken(userData);
+    const refreshToken = signRefreshToken(userData);
 
     sendVerificationMail(userData);
 
@@ -41,11 +42,16 @@ export async function createUserController(req: Request, res: Response) {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         path: "/",
-        expires: new Date(Date.now() + 10 + 60 + 24),
         maxAge: 24 * 60 * 60 * 1000,
       })
+      .cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      })
       .status(200)
-      .json({ message: "Successfuly created user" });
+      .json({ message: "Successfully created user" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });
