@@ -3,34 +3,53 @@ import { User } from "@prisma/client";
 import { comparePassword, encryptPassword } from "../../lib/bcrypt";
 import { signToken } from "../../lib/jwt";
 import { createUser, getUserByEmail } from "./user.model";
+import { sendVerificationMail } from "../email/email.service";
 
 export async function createUserController(req: Request, res: Response) {
   const { username, email, password } = req.body;
 
-  const hashedPassword = await encryptPassword(password);
+  try {
+    const existingUser = await getUserByEmail(email);
+    if (existingUser) {
+      res.status(400).json({ message: "User already exists" });
+      return;
+    }
 
-  const userData: User = {
-    username,
-    email,
-    hashed_password: hashedPassword,
-    id: crypto.randomUUID(),
-    email_verified: false,
-    created_at: new Date(),
-  };
-  await createUser(userData);
+    const hashedPassword = await encryptPassword(password);
 
-  const accessToken = signToken(userData);
+    const userData: User = {
+      username,
+      email,
+      hashed_password: hashedPassword,
+      id: crypto.randomUUID(),
+      email_verified: false,
+      created_at: new Date(),
+    };
+    const result = await createUser(userData);
 
-  res
-    .cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      path: "/",
-      expires: new Date(Date.now() + 10 + 60 + 24),
-      maxAge: 24 * 60 * 60 * 1000,
-    })
-    .status(200)
-    .json({ message: "Successfuly created user" });
+    if (!result) {
+      res.status(500).json({ message: "Failed to create user" });
+      return;
+    }
+
+    const accessToken = signToken(userData);
+
+    sendVerificationMail(userData);
+
+    res
+      .cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        path: "/",
+        expires: new Date(Date.now() + 10 + 60 + 24),
+        maxAge: 24 * 60 * 60 * 1000,
+      })
+      .status(200)
+      .json({ message: "Successfuly created user" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
 }
 
 export async function loginUserController(req: Request, res: Response) {
@@ -65,4 +84,5 @@ export async function loginUserController(req: Request, res: Response) {
 
 export async function logoutUserController(req: Request, res: Response) {
   res.clearCookie("accessToken");
+  res.status(200).json({ message: "Successfully logged out" });
 }

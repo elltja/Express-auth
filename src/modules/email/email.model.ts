@@ -1,5 +1,5 @@
 import { Email_verification_token } from "@prisma/client";
-import { prisma } from "lib/db";
+import { prisma } from "../../lib/db";
 
 export async function addEmailVerificationToken(
   tokenData: Email_verification_token

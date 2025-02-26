@@ -9,13 +9,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export async function sendMail(to: string, subject: string, text: string) {
+export async function sendMail(to: string, subject: string, html: string) {
   try {
     const info = await transporter.sendMail({
       from: process.env.VERIFICATION_MAIL_ADDRESS,
       to,
       subject,
-      text,
+      html,
     });
 
     console.log("Email sent: ", info.response);

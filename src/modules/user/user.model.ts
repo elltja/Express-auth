@@ -2,7 +2,7 @@ import { User } from "@prisma/client";
 import { prisma } from "../../lib/db";
 
 export async function createUser(userData: User) {
-  await prisma.user.create({
+  return await prisma.user.create({
     data: userData,
   });
 }

@@ -1,7 +1,4 @@
-export function getVerificationEmailTemplate(
-  to: string,
-  verificationLink: string
-) {
+export function getVerificationEmailTemplate(verificationLink: string) {
   return `
         <!DOCTYPE html>
         <html>
@@ -12,6 +9,12 @@ export function getVerificationEmailTemplate(
                         padding: 10px;
                         border-radius: 5px;
                         background: black;
+                        color: white;
+                    }
+                    a[href] {
+                        color: white;
+                    }
+                    .ii a[href] {
                         color: white;
                     }
                     body {
@@ -34,8 +37,8 @@ export function getVerificationEmailTemplate(
             <body>
                 <div class="container">
                     <h2>Email Verification</h2>
-                    <p>Dear user with email</p>
-                    <p>Thank you for registering. Please click the button below to verify your email address: '${to}'</p>
+                    <p>Dear user,</p>
+                    <p>Thank you for registering. Please click the button below to verify your email address</p>
                     <a href="${verificationLink}">Verify Your Email</a>
                     <p class="footer">If you did not request this email, please ignore it.</p>
                 </div>
