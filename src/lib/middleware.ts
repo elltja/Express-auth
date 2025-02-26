@@ -13,6 +13,8 @@ export async function protect(req: Request, res: Response, next: NextFunction) {
     const refreshToken = req.cookies.refreshToken;
 
     if (!accessToken || !refreshToken) {
+      console.error("No accessToken or refreshToken");
+
       res.status(401).json({ message: "Unauthorized" });
       return;
     }
